@@ -13,7 +13,12 @@
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('build/.vite/manifest.json')) || file_exists(public_path('hot')))
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @else
+            <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+            <script defer src="{{ asset('js/app.js') }}"></script>
+        @endif
     </head>
     <body class="font-sans antialiased bg-page-bg text-text-primary min-h-screen selection:bg-accent selection:text-page-bg flex flex-col justify-between">
         <!-- Main Content Area -->
