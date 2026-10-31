@@ -1,0 +1,82 @@
+
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800">
+            Edit Kategori
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-3xl mx-auto px-4">
+
+            <div class="bg-white p-6 rounded-lg shadow">
+
+                <form action="{{ route('categories.update', $category) }}"
+                      method="POST">
+
+                    @csrf
+                    @method('PUT')
+
+                    <div class="mb-4">
+                        <label class="block mb-2">
+                            Nama Kategori
+                        </label>
+
+                        <input type="text"
+                               name="name"
+                               value="{{ old('name', $category->name) }}"
+                               class="w-full border-gray-300 rounded-md">
+
+                        @error('name')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block mb-2">
+                            Tipe Kategori
+                        </label>
+
+                        <select name="type"
+                                class="w-full border-gray-300 rounded-md">
+
+                            <option value="income"
+                                {{ old('type', $category->type) == 'income' ? 'selected' : '' }}>
+                                Pemasukan
+                            </option>
+
+                            <option value="expense"
+                                {{ old('type', $category->type) == 'expense' ? 'selected' : '' }}>
+                                Pengeluaran
+                            </option>
+
+                        </select>
+
+                        @error('type')
+                            <p class="text-red-600 text-sm mt-1">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit"
+                                class="bg-indigo-600 text-white px-4 py-2 rounded">
+                            Update
+                        </button>
+
+                        <a href="{{ route('categories.index') }}"
+                           class="bg-gray-200 px-4 py-2 rounded">
+                            Kembali
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</x-app-layout>
