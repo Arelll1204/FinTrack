@@ -1,153 +1,161 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detail Anggaran
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-text-primary tracking-tight">
+                    Detail Anggaran
+                </h1>
+                <p class="text-xs text-text-secondary mt-0.5">
+                    Informasi batas kuota dan realisasi pengeluaran pada kategori terkait.
+                </p>
+            </div>
+            <a href="{{ route('budgets.index') }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Kembali ke Daftar</span>
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6">
 
-            <div class="bg-white p-6 rounded-lg shadow mb-8">
+        <div class="bg-surface border border-border rounded-lg p-6 shadow-xs">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-border/80 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-text-primary">
+                        Anggaran Kategori: {{ $budget->category->name ?? '-' }}
+                    </h2>
+                    <p class="text-xs text-text-secondary mt-0.5">
+                        Periode: {{ $monthName }} {{ $budget->year }}
+                    </p>
+                </div>
 
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">
-                            Anggaran: {{ $budget->category->name ?? '-' }}
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">
-                            Periode: {{ $monthName }} {{ $budget->year }}
-                        </p>
-                    </div>
+                @if ($budget->percentage > 100)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-expense/15 text-expense border border-expense/30">
+                        &#10007; Melebihi Batas
+                    </span>
+                @elseif ($budget->percentage >= 80)
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-budget-warn/15 text-budget-warn border border-budget-warn/30">
+                        &#9888; Hampir Habis
+                    </span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-income/15 text-income border border-income/30">
+                        &#10003; Batas Aman
+                    </span>
+                @endif
+            </div>
 
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border {{ $budget->status_badge }}">
-                        @if ($budget->percentage > 100)
-                            &#10007; {{ $budget->status_label }}
-                        @elseif ($budget->percentage >= 80)
-                            &#9888; {{ $budget->status_label }}
+            <!-- Progress Bar Card -->
+            <div class="p-5 bg-nav-bg/70 border border-border rounded-lg mb-6">
+                <div class="flex justify-between items-center text-xs font-semibold text-text-secondary mb-2">
+                    <span>Tingkat Pemakaian: <strong class="{{ $budget->percentage > 100 ? 'text-expense' : ($budget->percentage >= 80 ? 'text-budget-warn' : 'text-income') }}">{{ $budget->percentage }}%</strong></span>
+                    <span>
+                        @if ($budget->remaining < 0)
+                            <span class="text-expense">Melebihi Rp {{ number_format($budget->over_budget, 0, ',', '.') }}</span>
                         @else
-                            &#10003; {{ $budget->status_label }}
+                            <span class="text-income">Sisa Kuota Rp {{ number_format($budget->remaining, 0, ',', '.') }}</span>
                         @endif
                     </span>
                 </div>
 
-                <!-- Progress Bar Card -->
-                <div class="p-6 bg-gray-50 rounded-lg border mb-6">
-                    <div class="flex justify-between items-center text-sm font-semibold text-gray-700 mb-2">
-                        <span>Pemakaian: {{ $budget->percentage }}%</span>
-                        <span>
+                <div class="w-full bg-page-bg border border-border rounded-full h-3 overflow-hidden mb-4">
+                    <div class="{{ $budget->percentage > 100 ? 'bg-expense' : ($budget->percentage >= 80 ? 'bg-budget-warn' : 'bg-income') }} h-full rounded-full transition-all duration-300"
+                         style="width: {{ min(100, $budget->percentage) }}%"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-border/80 text-center">
+                    <div>
+                        <span class="text-xs font-semibold text-text-secondary uppercase">Batas Anggaran</span>
+                        <p class="text-lg font-bold text-text-primary mt-1">
+                            Rp {{ number_format($budget->amount, 0, ',', '.') }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-semibold text-text-secondary uppercase">Total Pengeluaran</span>
+                        <p class="text-lg font-bold text-expense mt-1">
+                            Rp {{ number_format($budget->calculated_spent, 0, ',', '.') }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-semibold text-text-secondary uppercase">Sisa Anggaran</span>
+                        <p class="text-lg font-bold {{ $budget->remaining < 0 ? 'text-expense' : 'text-income' }} mt-1">
                             @if ($budget->remaining < 0)
-                                <span class="text-red-600">Melebihi Rp {{ number_format($budget->over_budget, 0, ',', '.') }}</span>
+                                - Rp {{ number_format(abs($budget->remaining), 0, ',', '.') }}
                             @else
-                                <span class="text-green-600">Sisa Rp {{ number_format($budget->remaining, 0, ',', '.') }}</span>
+                                Rp {{ number_format($budget->remaining, 0, ',', '.') }}
                             @endif
-                        </span>
-                    </div>
-
-                    <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-4">
-                        <div class="{{ $budget->progress_color }} h-4 rounded-full transition-all duration-300"
-                             style="width: {{ min(100, $budget->percentage) }}%"></div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t text-center">
-                        <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase">Batas Anggaran</p>
-                            <p class="text-xl font-bold text-gray-800 mt-1">
-                                Rp {{ number_format($budget->amount, 0, ',', '.') }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase">Total Pengeluaran</p>
-                            <p class="text-xl font-bold text-red-600 mt-1">
-                                Rp {{ number_format($budget->calculated_spent, 0, ',', '.') }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase">Sisa Anggaran</p>
-                            <p class="text-xl font-bold {{ $budget->remaining < 0 ? 'text-red-600' : 'text-green-600' }} mt-1">
-                                @if ($budget->remaining < 0)
-                                    - Rp {{ number_format(abs($budget->remaining), 0, ',', '.') }}
-                                @else
-                                    Rp {{ number_format($budget->remaining, 0, ',', '.') }}
-                                @endif
-                            </p>
-                        </div>
+                        </p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Daftar Transaksi Pengeluaran Terkait -->
-                <div class="mb-8">
-                    <h4 class="text-lg font-bold text-gray-800 mb-3">
+            <!-- Daftar Transaksi Terkait -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-text-primary">
                         Transaksi Pengeluaran Terkait ({{ $transactions->count() }})
-                    </h4>
+                    </h3>
+                </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 border">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="p-3 text-left text-xs font-semibold text-gray-600 border">Tanggal</th>
-                                    <th class="p-3 text-left text-xs font-semibold text-gray-600 border">Keterangan</th>
-                                    <th class="p-3 text-left text-xs font-semibold text-gray-600 border">Dompet</th>
-                                    <th class="p-3 text-right text-xs font-semibold text-gray-600 border">Nominal</th>
+                <div class="overflow-x-auto border border-border rounded-lg">
+                    <table class="min-w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-border text-text-secondary uppercase tracking-wider text-[11px] bg-nav-bg/40">
+                                <th scope="col" class="py-2.5 px-3">Tanggal</th>
+                                <th scope="col" class="py-2.5 px-3">Keterangan</th>
+                                <th scope="col" class="py-2.5 px-3">Dompet</th>
+                                <th scope="col" class="py-2.5 px-3 text-right">Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border/60">
+                            @forelse ($transactions as $t)
+                                <tr class="hover:bg-surface-hover/60 transition-colors">
+                                    <td class="py-2.5 px-3 text-text-secondary whitespace-nowrap">
+                                        {{ $t->transaction_date ? $t->transaction_date->format('d/m/Y') : '-' }}
+                                    </td>
+                                    <td class="py-2.5 px-3 text-text-primary font-medium">
+                                        {{ $t->description }}
+                                    </td>
+                                    <td class="py-2.5 px-3 text-text-secondary">
+                                        {{ $t->wallet->name ?? '-' }}
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right font-semibold text-expense whitespace-nowrap">
+                                        Rp {{ number_format($t->amount, 0, ',', '.') }}
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse ($transactions as $t)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="p-3 text-sm text-gray-700 border whitespace-nowrap">
-                                            {{ $t->transaction_date ? $t->transaction_date->format('d/m/Y') : '-' }}
-                                        </td>
-                                        <td class="p-3 text-sm text-gray-800 font-medium border">
-                                            {{ $t->description }}
-                                        </td>
-                                        <td class="p-3 text-sm text-gray-600 border">
-                                            {{ $t->wallet->name ?? '-' }}
-                                        </td>
-                                        <td class="p-3 text-sm text-right font-semibold text-red-600 border whitespace-nowrap">
-                                            - Rp {{ number_format($t->amount, 0, ',', '.') }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="p-6 text-center text-gray-500 text-sm">
-                                            Belum ada transaksi pengeluaran pada kategori ini untuk periode {{ $monthName }} {{ $budget->year }}.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-6 text-center text-text-secondary text-xs">
+                                        Belum ada mutasi pengeluaran pada kategori ini selama periode terkait.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <!-- Tombol Navigasi -->
-                <div class="flex items-center gap-3 pt-4 border-t">
-                    <a href="{{ route('budgets.edit', $budget->id) }}"
-                       class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded-lg transition">
-                        Edit Anggaran
-                    </a>
+            <!-- Action Buttons -->
+            <div class="pt-4 border-t border-border/80 flex items-center gap-3">
+                <a href="{{ route('budgets.edit', $budget->id) }}"
+                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-accent text-page-bg hover:bg-accent/90 transition shadow-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Edit Anggaran</span>
+                </a>
 
-                    <form action="{{ route('budgets.destroy', $budget->id) }}"
-                          method="POST"
-                          class="inline"
-                          onsubmit="return confirm('Apakah kamu yakin ingin menghapus anggaran ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition">
-                            Hapus
-                        </button>
-                    </form>
-
-                    <a href="{{ route('budgets.index', ['month' => $budget->month, 'year' => $budget->year]) }}"
-                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition ms-auto">
-                        Kembali ke Daftar
-                    </a>
-                </div>
-
+                <a href="{{ route('budgets.index') }}"
+                   class="inline-flex items-center px-4 py-2 rounded-lg text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition ms-auto">
+                    Kembali
+                </a>
             </div>
 
         </div>
+
     </div>
 </x-app-layout>
-

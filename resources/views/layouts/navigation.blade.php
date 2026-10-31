@@ -1,164 +1,160 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
+<!-- Mobile Backdrop Overlay -->
+<div x-show="sidebarOpen"
+     x-transition:enter="transition-opacity ease-linear duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity ease-linear duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="sidebarOpen = false"
+     class="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 md:hidden"
+     style="display: none;"></div>
+
+<!-- Sidebar -->
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+       class="fixed md:sticky top-0 inset-y-0 left-0 z-50 w-64 bg-nav-bg border-r border-border flex flex-col justify-between transition-transform duration-200 ease-in-out md:h-screen shrink-0">
+
+    <div>
+        <!-- Brand / Header -->
+        <div class="h-16 px-6 flex items-center justify-between border-b border-border/80">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent font-bold text-lg group-hover:scale-105 transition-transform">
+                    FT
                 </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
-                        Kategori
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')">
-                        Dompet
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
-                        Transaksi
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('budgets.index')" :active="request()->routeIs('budgets.*')">
-                        Anggaran
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                        Laporan
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('monthly-plans.index')"
-                                :active="request()->routeIs('monthly-plans.*')">
-                        Perencanaan Bulanan
-                    </x-nav-link>
-
-
+                <div class="flex flex-col">
+                    <span class="font-bold text-text-primary text-lg tracking-tight leading-tight">FinTrack</span>
+                    <span class="text-[11px] text-text-secondary tracking-wider uppercase font-medium">Personal Finance</span>
                 </div>
+            </a>
 
-                <!-- Settings Dropdown -->
-                <div class="hidden sm:flex sm:items-center sm:ms-6">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button
-                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                                <div>{{ Auth::user()->name }}</div>
+            <!-- Close button for mobile -->
+            <button @click="sidebarOpen = false"
+                    type="button"
+                    class="md:hidden text-text-secondary hover:text-text-primary p-1.5 rounded-lg hover:bg-surface transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
+        <!-- Navigation Menu -->
+        <nav class="p-4 space-y-1.5 overflow-y-auto">
+            <div class="px-3 pb-2 text-[11px] font-semibold tracking-wider text-text-secondary/70 uppercase">
+                Menu Utama
+            </div>
 
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
+            <!-- Dashboard -->
+            @php $isDashboard = request()->routeIs('dashboard'); @endphp
+            <a href="{{ route('dashboard') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isDashboard ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isDashboard ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
 
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
+            <!-- Kategori -->
+            @php $isCategories = request()->routeIs('categories.*'); @endphp
+            <a href="{{ route('categories.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isCategories ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isCategories ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                <span>Kategori</span>
+            </a>
 
-                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
+            <!-- Dompet -->
+            @php $isWallets = request()->routeIs('wallets.*'); @endphp
+            <a href="{{ route('wallets.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isWallets ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isWallets ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span>Dompet</span>
+            </a>
+
+            <!-- Transaksi -->
+            @php $isTransactions = request()->routeIs('transactions.*'); @endphp
+            <a href="{{ route('transactions.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isTransactions ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isTransactions ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <span>Transaksi</span>
+            </a>
+
+            <!-- Anggaran -->
+            @php $isBudgets = request()->routeIs('budgets.*'); @endphp
+            <a href="{{ route('budgets.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isBudgets ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isBudgets ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Anggaran</span>
+            </a>
+
+            <!-- Laporan -->
+            @php $isReports = request()->routeIs('reports.*'); @endphp
+            <a href="{{ route('reports.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isReports ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isReports ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Laporan</span>
+            </a>
+
+            <!-- Perencanaan Bulanan -->
+            @php $isMonthlyPlans = request()->routeIs('monthly-plans.*'); @endphp
+            <a href="{{ route('monthly-plans.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ $isMonthlyPlans ? 'bg-accent/10 text-accent border-l-2 border-accent font-semibold shadow-xs' : 'text-text-secondary hover:text-text-primary hover:bg-surface/70' }}">
+                <svg class="w-5 h-5 shrink-0 {{ $isMonthlyPlans ? 'text-accent' : 'text-text-secondary' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Perencanaan Bulanan</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Bottom User Section -->
+    <div class="p-4 border-t border-border/80">
+        <div class="flex items-center justify-between p-2 rounded-lg bg-surface/50 border border-border">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-accent/20 border border-accent/40 text-accent font-semibold text-xs flex items-center justify-center shrink-0">
+                    {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
                 </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold text-text-primary truncate">
+                        {{ Auth::user()->name }}
+                    </p>
+                    <p class="text-[11px] text-text-secondary truncate">
+                        {{ Auth::user()->email }}
+                    </p>
+                </div>
+            </div>
 
-                <!-- Hamburger -->
-                <div class="-me-2 flex items-center sm:hidden">
-                    <button @click="open = ! open"
-                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                            <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden"
-                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
+            <div class="flex items-center gap-1 shrink-0">
+                <!-- Profile Link -->
+                <a href="{{ route('profile.edit') }}"
+                   title="Profil Akun"
+                   class="p-1.5 text-text-secondary hover:text-text-primary hover:bg-surface rounded-md transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </a>
+
+                <!-- Logout Form -->
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit"
+                            title="Keluar"
+                            class="p-1.5 text-text-secondary hover:text-expense hover:bg-expense/10 rounded-md transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
-
-        <!-- Responsive Navigation Menu -->
-        <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-
-            <div class="pt-2 pb-3 space-y-1">
-
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                    {{ __('Dashboard') }}
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
-                    Kategori
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')">
-                    Dompet
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')">
-                    Transaksi
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('budgets.index')" :active="request()->routeIs('budgets.*')">
-                    Anggaran
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                    Laporan
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('monthly-plans.index')"
-                                      :active="request()->routeIs('monthly-plans.*')">
-                    Perencanaan Bulanan
-                </x-responsive-nav-link>
-
-
-            </div>
-
-
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                <div class="px-4">
-                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
-
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
-
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
-                </div>
-            </div>
-        </div>
-</nav>
+    </div>
+</aside>

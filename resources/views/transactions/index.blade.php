@@ -1,195 +1,215 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Transaksi FinTrack
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <h1 class="text-xl font-bold text-text-primary tracking-tight">
+                    Transaksi
+                </h1>
+                <p class="text-xs text-text-secondary mt-0.5">
+                    Kelola seluruh catatan mutasi arus kas pemasukan dan pengeluaran kamu.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <a href="{{ route('transactions.export', request()->query()) }}"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface border border-border text-text-primary hover:bg-surface-hover hover:border-border-light transition shadow-xs">
+                    <svg class="w-3.5 h-3.5 text-income" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Ekspor Excel</span>
+                </a>
+
+                <a href="{{ route('transactions.create') }}"
+                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-accent text-page-bg hover:bg-accent/90 transition shadow-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Tambah Transaksi</span>
+                </a>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
 
-            <div class="bg-white p-6 rounded-lg shadow">
+        @if (session('success'))
+            <div class="p-3.5 rounded-lg bg-income/10 border border-income/30 text-income text-xs font-medium flex items-center gap-2.5 shadow-xs">
+                <svg class="w-4 h-4 shrink-0 text-income" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">
-                            Daftar Transaksi
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">
-                            Kelola seluruh transaksi pemasukan dan pengeluaran kamu.
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="{{ route('transactions.export', request()->query()) }}"
-                           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm text-sm whitespace-nowrap">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                            Ekspor Excel
-                        </a>
-
-                        <a href="{{ route('transactions.create') }}"
-                           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm text-sm whitespace-nowrap">
-                            + Tambah Transaksi
-                        </a>
-                    </div>
+        <!-- Card Filter Periode & Tipe -->
+        <div class="bg-surface border border-border rounded-lg p-4 shadow-xs">
+            <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-end">
+                <div>
+                    <label for="start_date" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Tanggal Mulai
+                    </label>
+                    <input type="date"
+                           id="start_date"
+                           name="start_date"
+                           value="{{ $startDate }}"
+                           class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-xs py-2 px-3 focus:border-accent focus:ring-1 focus:ring-accent transition">
                 </div>
 
-                <!-- Filter Periode & Tipe -->
-                <form method="GET" action="{{ route('transactions.index') }}" class="bg-gray-50 p-4 rounded-lg border mb-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                        <div>
-                            <label for="start_date" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tanggal Mulai</label>
-                            <input type="date"
-                                   id="start_date"
-                                   name="start_date"
-                                   value="{{ $startDate }}"
-                                   class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
-                        </div>
-
-                        <div>
-                            <label for="end_date" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tanggal Akhir</label>
-                            <input type="date"
-                                   id="end_date"
-                                   name="end_date"
-                                   value="{{ $endDate }}"
-                                   class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
-                        </div>
-
-                        <div>
-                            <label for="type" class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipe</label>
-                            <select id="type"
-                                    name="type"
-                                    class="w-full text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1.5 px-3">
-                                <option value="">Semua Tipe</option>
-                                <option value="income" {{ $type === 'income' ? 'selected' : '' }}>Pemasukan</option>
-                                <option value="expense" {{ $type === 'expense' ? 'selected' : '' }}>Pengeluaran</option>
-                            </select>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                            <button type="submit"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm flex-1">
-                                Filter
-                            </button>
-
-                            @if ($startDate || $endDate || $type)
-                                <a href="{{ route('transactions.index') }}"
-                                   class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition text-center">
-                                    Reset
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                </form>
-
-                @if (session('success'))
-                    <div class="bg-green-100 border border-green-200 text-green-700 p-4 rounded-lg mb-6">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 border">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="p-3 text-left text-sm font-semibold text-gray-600 border">Tanggal</th>
-                                <th class="p-3 text-left text-sm font-semibold text-gray-600 border">Keterangan / Deskripsi</th>
-                                <th class="p-3 text-left text-sm font-semibold text-gray-600 border">Kategori</th>
-                                <th class="p-3 text-left text-sm font-semibold text-gray-600 border">Dompet</th>
-                                <th class="p-3 text-center text-sm font-semibold text-gray-600 border">Tipe</th>
-                                <th class="p-3 text-right text-sm font-semibold text-gray-600 border">Nominal</th>
-                                <th class="p-3 text-center text-sm font-semibold text-gray-600 border">Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody class="divide-y divide-gray-200">
-                            @forelse ($transactions as $transaction)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="p-3 text-sm text-gray-700 border whitespace-nowrap">
-                                        {{ $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '-' }}
-                                    </td>
-
-                                    <td class="p-3 text-sm text-gray-800 font-medium border">
-                                        {{ $transaction->description }}
-                                    </td>
-
-                                    <td class="p-3 text-sm text-gray-600 border">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                            {{ $transaction->category->name ?? '-' }}
-                                        </span>
-                                    </td>
-
-                                    <td class="p-3 text-sm text-gray-600 border">
-                                        {{ $transaction->wallet->name ?? '-' }}
-                                    </td>
-
-                                    <td class="p-3 text-center border whitespace-nowrap">
-                                        @if ($transaction->type === 'income')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                                Pemasukan
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                                                Pengeluaran
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    <td class="p-3 text-right font-semibold border whitespace-nowrap {{ $transaction->type === 'income' ? 'text-green-600' : 'text-red-600' }}">
-                                        {{ $transaction->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
-                                    </td>
-
-                                    <td class="p-3 text-center border whitespace-nowrap">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('transactions.show', $transaction->id) }}"
-                                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                Detail
-                                            </a>
-
-                                            <span class="text-gray-300">|</span>
-
-                                            <a href="{{ route('transactions.edit', $transaction->id) }}"
-                                               class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
-                                                Edit
-                                            </a>
-
-                                            <span class="text-gray-300">|</span>
-
-                                            <form action="{{ route('transactions.destroy', $transaction->id) }}"
-                                                  method="POST"
-                                                  class="inline"
-                                                  onsubmit="return confirm('Apakah kamu yakin ingin menghapus transaksi ini? Saldo dompet akan disesuaikan kembali.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="p-8 text-center text-gray-500">
-                                        Belum ada data transaksi. Silakan klik tombol <strong>+ Tambah Transaksi</strong> di atas.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div>
+                    <label for="end_date" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Tanggal Akhir
+                    </label>
+                    <input type="date"
+                           id="end_date"
+                           name="end_date"
+                           value="{{ $endDate }}"
+                           class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-xs py-2 px-3 focus:border-accent focus:ring-1 focus:ring-accent transition">
                 </div>
 
-                @if ($transactions->hasPages())
-                    <div class="mt-6">
-                        {{ $transactions->links() }}
-                    </div>
-                @endif
+                <div>
+                    <label for="type" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Tipe Mutasi
+                    </label>
+                    <select id="type"
+                            name="type"
+                            class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-xs py-2 px-3 focus:border-accent focus:ring-1 focus:ring-accent transition cursor-pointer">
+                        <option value="">Semua Tipe</option>
+                        <option value="income" {{ $type === 'income' ? 'selected' : '' }}>Pemasukan</option>
+                        <option value="expense" {{ $type === 'expense' ? 'selected' : '' }}>Pengeluaran</option>
+                    </select>
+                </div>
 
+                <div class="flex items-center gap-2">
+                    <button type="submit"
+                            class="flex-1 inline-flex items-center justify-center gap-1.5 bg-accent text-page-bg hover:bg-accent/90 px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        <span>Filter Data</span>
+                    </button>
+
+                    @if ($startDate || $endDate || $type)
+                        <a href="{{ route('transactions.index') }}"
+                           class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold bg-nav-bg border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Card -->
+        <div class="bg-surface border border-border rounded-lg p-5 shadow-xs">
+            <div class="flex justify-between items-center pb-4 mb-2 border-b border-border/80">
+                <div>
+                    <h2 class="text-base font-semibold text-text-primary tracking-tight">
+                        Daftar Catatan Transaksi
+                    </h2>
+                    <p class="text-xs text-text-secondary mt-0.5">
+                        Menampilkan riwayat transaksi keuangan aktif Anda.
+                    </p>
+                </div>
             </div>
 
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-border text-text-secondary uppercase tracking-wider text-[11px]">
+                            <th scope="col" class="py-3 px-3">Tanggal</th>
+                            <th scope="col" class="py-3 px-3">Deskripsi / Keterangan</th>
+                            <th scope="col" class="py-3 px-3">Kategori</th>
+                            <th scope="col" class="py-3 px-3">Dompet</th>
+                            <th scope="col" class="py-3 px-3 text-center">Tipe</th>
+                            <th scope="col" class="py-3 px-3 text-right">Nominal</th>
+                            <th scope="col" class="py-3 px-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-border/60">
+                        @forelse ($transactions as $transaction)
+                            <tr class="hover:bg-surface-hover/60 transition-colors">
+                                <td class="py-3 px-3 text-text-secondary whitespace-nowrap">
+                                    {{ $transaction->transaction_date ? $transaction->transaction_date->format('d/m/Y') : '-' }}
+                                </td>
+
+                                <td class="py-3 px-3 font-medium text-text-primary max-w-xs truncate">
+                                    {{ $transaction->description }}
+                                </td>
+
+                                <td class="py-3 px-3 text-text-secondary">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-nav-bg border border-border text-text-primary">
+                                        {{ $transaction->category->name ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="py-3 px-3 text-text-secondary whitespace-nowrap">
+                                    {{ $transaction->wallet->name ?? '-' }}
+                                </td>
+
+                                <td class="py-3 px-3 text-center whitespace-nowrap">
+                                    @if ($transaction->type === 'income')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-income/15 text-income border border-income/30">
+                                            Pemasukan
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-expense/15 text-expense border border-expense/30">
+                                            Pengeluaran
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="py-3 px-3 text-right font-semibold whitespace-nowrap {{ $transaction->type === 'income' ? 'text-income' : 'text-expense' }}">
+                                    {{ $transaction->type === 'income' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
+                                </td>
+
+                                <td class="py-3 px-3 text-center whitespace-nowrap">
+                                    <div class="inline-flex items-center gap-2">
+                                        <a href="{{ route('transactions.show', $transaction->id) }}"
+                                           title="Lihat Detail"
+                                           class="text-accent hover:underline font-medium text-xs">
+                                            Detail
+                                        </a>
+
+                                        <span class="text-border">|</span>
+
+                                        <a href="{{ route('transactions.edit', $transaction->id) }}"
+                                           title="Edit Data"
+                                           class="text-blue-400 hover:underline font-medium text-xs">
+                                            Edit
+                                        </a>
+
+                                        <span class="text-border">|</span>
+
+                                        <form action="{{ route('transactions.destroy', $transaction->id) }}"
+                                              method="POST"
+                                              class="inline"
+                                              onsubmit="return confirm('Apakah kamu yakin ingin menghapus transaksi ini? Saldo dompet akan disesuaikan kembali.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="text-expense hover:underline font-medium text-xs cursor-pointer">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-10 text-center text-text-secondary text-xs">
+                                    Belum ada data transaksi. Silakan klik tombol <strong>+ Tambah Transaksi</strong> di atas.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if ($transactions->hasPages())
+                <div class="pt-4 border-t border-border/80 mt-4">
+                    {{ $transactions->links() }}
+                </div>
+            @endif
         </div>
+
     </div>
 </x-app-layout>
-

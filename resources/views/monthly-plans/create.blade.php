@@ -1,76 +1,116 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Tambah Rencana Bulanan
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-text-primary tracking-tight">
+                    Tambah Rencana Bulanan
+                </h1>
+                <p class="text-xs text-text-secondary mt-0.5">
+                    Buat proyeksi anggaran rencana belanja untuk periode tertentu.
+                </p>
+            </div>
+            <a href="{{ route('monthly-plans.index') }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Kembali ke Daftar</span>
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto px-4">
+    <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto space-y-6">
 
-            <div class="bg-white p-6 shadow rounded-lg">
+        <div class="bg-surface border border-border rounded-lg p-6 shadow-xs">
+            <div class="mb-5 pb-4 border-b border-border/80">
+                <h2 class="text-base font-semibold text-text-primary tracking-tight">
+                    Formulir Rencana Baru
+                </h2>
+                <p class="text-xs text-text-secondary mt-0.5">
+                    Tentukan pos rencana, kategori, nominal, dan bulan pelaksanaan.
+                </p>
+            </div>
 
-                <form action="{{ route('monthly-plans.store') }}"
-                      method="POST">
-                    @csrf
+            <form action="{{ route('monthly-plans.store') }}" method="POST" class="space-y-4">
+                @csrf
 
-                    <div class="mb-4">
-                        <label class="block mb-2">Nama Rencana</label>
+                <div>
+                    <label for="name" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Nama Rencana <span class="text-expense">*</span>
+                    </label>
 
-                        <input type="text"
-                               name="name"
-                               value="{{ old('name') }}"
-                               class="w-full border-gray-300 rounded"
-                               placeholder="Contoh: Budget Makan Bulanan">
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value="{{ old('name') }}"
+                           class="w-full bg-nav-bg border border-border text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:ring-1 focus:ring-accent rounded-lg text-sm px-3.5 py-2.5 transition"
+                           placeholder="Contoh: Belanja Bulanan Supermarket, Cicilan Gadget"
+                           required>
 
-                        @error('name')
-                            <p class="text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    @error('name')
+                        <p class="text-expense text-xs mt-1.5">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                    <div class="mb-4">
-                        <label class="block mb-2">Kategori</label>
+                <div>
+                    <label for="category_id" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Kategori <span class="text-expense">*</span>
+                    </label>
 
-                        <select name="category_id"
-                                class="w-full border-gray-300 rounded">
-                            <option value="">Pilih kategori</option>
+                    <select id="category_id"
+                            name="category_id"
+                            class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-sm px-3.5 py-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition cursor-pointer"
+                            required>
+                        <option value="">-- Pilih Kategori --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}"
+                                {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
 
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    @error('category_id')
+                        <p class="text-expense text-xs mt-1.5">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        @error('category_id')
-                            <p class="text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <div>
+                    <label for="amount" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                        Nominal Rencana (Rp) <span class="text-expense">*</span>
+                    </label>
 
-                    <div class="mb-4">
-                        <label class="block mb-2">Nominal Rencana</label>
-
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-text-secondary text-xs font-semibold pointer-events-none">
+                            Rp
+                        </span>
                         <input type="number"
+                               id="amount"
                                name="amount"
                                min="0.01"
                                step="0.01"
                                value="{{ old('amount') }}"
-                               class="w-full border-gray-300 rounded"
-                               placeholder="Contoh: 1500000">
-
-                        @error('amount')
-                            <p class="text-red-600">{{ $message }}</p>
-                        @enderror
+                               placeholder="1500000"
+                               class="w-full bg-nav-bg border border-border text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:ring-1 focus:ring-accent rounded-lg text-sm pl-10 pr-3.5 py-2.5 transition"
+                               required>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block mb-2">Bulan</label>
+                    @error('amount')
+                        <p class="text-expense text-xs mt-1.5">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                        <select name="month"
-                                class="w-full border-gray-300 rounded">
-                            <option value="">Pilih bulan</option>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="month" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                            Bulan <span class="text-expense">*</span>
+                        </label>
 
+                        <select id="month"
+                                name="month"
+                                class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-sm px-3.5 py-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition cursor-pointer"
+                                required>
+                            <option value="">-- Pilih Bulan --</option>
                             @foreach(range(1, 12) as $month)
                                 <option value="{{ $month }}"
                                     {{ old('month') == $month ? 'selected' : '' }}>
@@ -80,40 +120,47 @@
                         </select>
 
                         @error('month')
-                            <p class="text-red-600">{{ $message }}</p>
+                            <p class="text-expense text-xs mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block mb-2">Tahun</label>
+                    <div>
+                        <label for="year" class="block font-semibold text-xs text-text-secondary uppercase tracking-wider mb-1.5">
+                            Tahun <span class="text-expense">*</span>
+                        </label>
 
                         <input type="number"
+                               id="year"
                                name="year"
                                min="2020"
                                max="2100"
                                value="{{ old('year', date('Y')) }}"
-                               class="w-full border-gray-300 rounded">
+                               class="w-full bg-nav-bg border border-border text-text-primary rounded-lg text-sm px-3.5 py-2.5 focus:border-accent focus:ring-1 focus:ring-accent transition"
+                               required>
 
                         @error('year')
-                            <p class="text-red-600">{{ $message }}</p>
+                            <p class="text-expense text-xs mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
 
-                    <div class="flex gap-3">
-                        <button type="submit"
-                                class="px-4 py-2 bg-indigo-600 text-white rounded">
-                            Simpan
-                        </button>
+                <div class="pt-4 border-t border-border/80 flex items-center gap-3">
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 bg-accent text-page-bg hover:bg-accent/90 px-4 py-2.5 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Simpan Rencana</span>
+                    </button>
 
-                        <a href="{{ route('monthly-plans.index') }}"
-                           class="px-4 py-2 bg-gray-200 rounded">
-                            Kembali
-                        </a>
-                    </div>
+                    <a href="{{ route('monthly-plans.index') }}"
+                       class="inline-flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover transition">
+                        Batal
+                    </a>
+                </div>
 
-                </form>
-
-            </div>
+            </form>
         </div>
+
     </div>
 </x-app-layout>
